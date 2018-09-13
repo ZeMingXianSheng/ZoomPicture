@@ -16,39 +16,43 @@
 @end
 
 @implementation CustomSheet
-- (instancetype)initWithFrame:(CGRect)frame titleArr:(NSArray *)titleArr titleFlag:(NSString *)titleFlag{
+- (instancetype)initWithFrame:(CGRect)frame titleArr:(NSArray *)titleArr sheetType:(CustomSheetType)sheetType {
     self = [super initWithFrame:frame];
-    //淡入动画
-    CATransition *transition = [CATransition animation];
-    transition.type = kCATransitionReveal;
-    transition.subtype = kCATransitionFromLeft;
-    transition.duration = 0.3;
-    [self.layer addAnimation:transition forKey:nil];
-    
-    size = frame.size;
-    [self setBackgroundColor:[UIColor colorWithWhite:0.1 alpha:0.5]];
-    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hiddenSheet:)];
-    [self addGestureRecognizer:tap];
-    [self makeBaseUIWithTitleArr:titleArr titleFlag:titleFlag];
+    if (self) {
+        self.sheetType = sheetType;
+        //淡入动画
+        CATransition *transition = [CATransition animation];
+        transition.type = kCATransitionReveal;
+        transition.subtype = kCATransitionFromLeft;
+        transition.duration = 0.3;
+        [self.layer addAnimation:transition forKey:nil];
+        
+        size = frame.size;
+        [self setBackgroundColor:[UIColor colorWithWhite:0.1 alpha:0.5]];
+        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hiddenSheet:)];
+        [self addGestureRecognizer:tap];
+        [self makeBaseUIWithTitleArr:titleArr];
+    }
+   
     return self;
 }
 
-- (void)makeBaseUIWithTitleArr:(NSArray *)titleArr titleFlag:(NSString *)titleFlag{
+- (void)makeBaseUIWithTitleArr:(NSArray *)titleArr {
     self.bgkView = [[UIView alloc] init];
-    if ([titleFlag isEqualToString:@"1"]) {
+    if (self.sheetType == CustomSheetTypePrompt) {
         _bgkView.frame = CGRectMake(0, size.height, size.width, (titleArr.count - 1) * 50 + 55 + 70);
         NSLog(@"bgView:%@", NSStringFromCGRect(_bgkView.frame));
-        CGFloat y = [self createRemindBtnWithTitle:@"取消" origin_y:_bgkView.frame.size.height - 50 tag:- 1 action:@selector(hiddenSheet:) titleFlag:titleFlag number:0] - 55;
+        CGFloat y = [self createRemindBtnWithTitle:@"取消" origin_y:_bgkView.frame.size.height - 50 tag:- 1 action:@selector(hiddenSheet:) number:0] - 55;
         NSLog(@"y1：%f", y);
         for (int i = 0; i < titleArr.count; i++) {
-            y = [self createRemindBtnWithTitle:titleArr[i] origin_y:y tag:i action:@selector(click:) titleFlag:titleFlag number:titleArr.count];
+            y = [self createRemindBtnWithTitle:titleArr[i] origin_y:y tag:i action:@selector(click:) number:titleArr.count];
             NSLog(@"y2: %f", y);
         }
     } else {
         _bgkView.frame = CGRectMake(0, size.height, size.width, titleArr.count * 50 + 55);
-        CGFloat y = [self createBtnWithTitle:@"取消" origin_y:_bgkView.frame.size.height - 50 tag:- 1 action:@selector(hiddenSheet:) titleFlag:titleFlag] - 55;
+        CGFloat y = [self createBtnWithTitle:@"取消" origin_y:_bgkView.frame.size.height - 50 tag:- 1 action:@selector(hiddenSheet:)] - 55;
         for (int i = 0; i < titleArr.count; i++) {
-            y = [self createBtnWithTitle:titleArr[i] origin_y:y tag:i action:@selector(click:) titleFlag:titleFlag];
+            y = [self createBtnWithTitle:titleArr[i] origin_y:y tag:i action:@selector(click:)];
         }
     }
     [self addSubview:_bgkView];
@@ -60,13 +64,13 @@
     }];
 }
 //常规
-- (CGFloat)createBtnWithTitle:(NSString *)title origin_y:(CGFloat)y tag:(NSInteger)tag action:(SEL)method titleFlag:(NSString *)titleFlag {
+- (CGFloat)createBtnWithTitle:(NSString *)title origin_y:(CGFloat)y tag:(NSInteger)tag action:(SEL)method  {
     UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
     [btn setTitle:title forState:UIControlStateNormal];
     btn.frame = CGRectMake(0, y, size.width, 49.5);
     [btn setBackgroundColor:[UIColor whiteColor]];
     btn.tag = tag;
-    if ([titleFlag isEqualToString:@"2"]) {//标题没有红色提醒
+    if (self.sheetType == CustomSheetTypeDefault) {//标题没有红色提醒
         [btn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     } else {
         if (tag == 0) {//标题第一个为红色提醒 255.0, 59.0, 48.0
@@ -80,7 +84,7 @@
     return y -= (tag == - 1 ? 0 : 50);
 }
 //顶部详细描述btn
-- (CGFloat)createRemindBtnWithTitle:(NSString *)title origin_y:(CGFloat)y tag:(NSInteger)tag action:(SEL)method titleFlag:(NSString *)titleFlag number:(NSInteger)number{
+- (CGFloat)createRemindBtnWithTitle:(NSString *)title origin_y:(CGFloat)y tag:(NSInteger)tag action:(SEL)method number:(NSInteger)number{
     UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
     [btn setTitle:title forState:UIControlStateNormal];
     [btn setBackgroundColor:[UIColor whiteColor]];

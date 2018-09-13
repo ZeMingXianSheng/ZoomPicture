@@ -99,7 +99,7 @@ static CGRect oldFrame;//图片原始frame
 - (void)saveImage:(UIGestureRecognizer *)sender {
     UIImageView *imageView = (UIImageView *)sender.view;
     if (sender.state == UIGestureRecognizerStateBegan) {
-        CustomSheet *sheet = [[CustomSheet alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height) titleArr:@[@"保存图片"] titleFlag:@"2"];
+        CustomSheet *sheet = [[CustomSheet alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height) titleArr:@[@"保存图片"] sheetType:CustomSheetTypeDefault];
         __weak typeof(sheet) weakSheet = sheet;
         sheet.Click = ^(NSInteger clickIndex) {
             switch (clickIndex) {
